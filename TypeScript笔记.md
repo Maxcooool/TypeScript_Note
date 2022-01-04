@@ -1630,3 +1630,39 @@ class Student<T> {
 
 const s = new Student<string>("小红");
 ```
+
+
+
+### 演练场——贪吃蛇
+
+#### 搭建
+
+直接把之前的webpack配置拿过来，当然之前只是配置了TS打包为JS，实际项目还需要css打包、图片打包等相关webpack配置，当前项目不涉及图片，下面介绍less的webpack配置准备
+
+安装依赖：
+
+```cmd
+npm i -D less less-loader css-loader style-loader
+```
+
+rules中加入以下配置
+
+```json
+module：{
+	rules:[
+	...,
+	{
+        test: /\.less/,
+        use: [
+          // 注意顺序是从下往上进行处理  less-loader -> css-loader -> style-loader
+          "style-loader",
+          "css-loader",
+          "less-loader",
+        ],
+      },
+	]
+}
+```
+
+加入后，写一些代码测试 新建src——style——index.less   书写样式后，在src-index.ts中引入, 并执行 npm run serve查看效果
+
