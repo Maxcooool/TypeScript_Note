@@ -8,6 +8,8 @@ class Person {
 
   // readonly 表示只读 不能修改
   readonly air = "long";
+  // 静态只读属性  注意关键字顺序不能变
+  static readonly xixi = "xixi";
 
   // 实例方法
   sayHello() {

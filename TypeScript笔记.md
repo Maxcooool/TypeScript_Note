@@ -1,4 +1,4 @@
-## 介绍
+##  介绍
 
 ### 1、什么是TypeScript?
 
@@ -51,6 +51,12 @@ npm i -g typescript
   ```
 
   如果命令不成功，检查是否全局安装了typescript
+
+## 注意事项
+
+ts会校验全局下有没有重复的变量名
+
+可以在ts文件中使用立即执行函数创建局部作用域, 从而使用同名变量
 
 ## 知识点
 
@@ -925,49 +931,98 @@ module.exports = {
 
 可以通过Person类来创建人的对象，通过Dog类创建狗的对象，不同的类可以用来创建不同的对象；
 
-#### 定义类
+#### 1、定义类
 
-```
+```js
 class 类名 {
-    属性名: 类型;
-    
-    constructor(参数: 类型){
-        this.属性名 = 参数;
-    }
-    
+    属性名: 类型 = 属性值;  
     方法名(){
         ....
     }
-
 }
 ```
 
 示例：
 
-```
-    class Person{
-        name: string;
-        age: number;
-    
-        constructor(name: string, age: number){
-            this.name = name;
-            this.age = age;
-        }
-    
-        sayHello(){
-            console.log(`大家好，我是${this.name}`);
-        }
-    }
+```js
+// 使用class关键字定义类
+class Person {
+  // 定义实例属性 通过对象的实例访问
+  name: string = "MonkeyKing";
+  age: number = 18;
+  // 使用static关键字 定义类属性（静态属性）通过类直接访问
+  static height: number = 24;
+
+  // readonly 表示只读 不能修改
+  readonly air = "long";
+  // 静态只读属性  注意关键字顺序不能变
+  static readonly xixi = "xixi";
+
+  // 实例方法
+  sayHello() {
+    console.log("hello");
+  }
+
+  // 静态方法
+  static hola() {
+    console.log("我是静态方法");
+  }
+}
 ```
 
 使用类：
 
-```
-const p = new Person('孙悟空', 18);
-p.sayHello();
+```js
+const xiaoming = new Person();
+console.log(xiaoming);
+console.log(xiaoming.name, xiaoming.age);
+
+console.log(Person.height);
+// console.log(Person.age); // error
+// console.log(xiaoming.height); //error
+console.log(xiaoming.air);
+// xiaoming.air = "short";
+// console.log(xiaoming.air);
+
+xiaoming.sayHello();
+
+Person.hola();
+
 ```
 
-#### 构造函数
+#### 2、构造函数
+
+为什么需要构造函数?
+
+```js
+class Dog {
+  name = "旺财";
+  age = 12;
+
+  bark() {
+    alert("汪汪汪");
+  }
+}
+
+const dog = new Dog();
+const dog2 = new Dog();
+const dog3 = new Dog();
+console.log(dog);
+console.log(dog2);
+console.log(dog3);
+```
+
+上述代码确实能创建 Dog 类的实例,但是创建出来的实例对象拥有相同的实例属性, 这样 Dog 类就没有太大意义, 我们想要的是不一样的狗! 
+
+但是如何实现呢? 要明确以下几点
+
+- 不能在类中直接定义属性值
+
+  因为在一旦在类中写死了属性, 那所有实例化对象都会拥有一样的属性
+
+- 从外界传值 在new的时候为实例对象分配传入的值
+
+所以构造函数来啦!
 
 可以使用`constructor`定义一个构造器方法；
 
@@ -975,53 +1030,305 @@ p.sayHello();
 
 例如：
 
+```js
+class Dog {
+  name: string;
+  age: number;
+
+  // constructor 构造函数
+  // 构造函数会在对象创建时调用(每次都会)
+  // new Dog(参数) 就相当于调用 constructor(参数)
+  constructor(name: string, age: number) {
+    // 实例方法中的 this 指向当前的实例
+    // 在构造函数中 当前对象就是新建的那个对象
+    // 可以通过 this 向新建的对象中添加属性
+    this.name = name;
+    this.age = age;
+  }
+
+  bark() {
+    // 实例方法中 this 指向调用者
+    console.log(this);
+  }
+}
+
+const dog = new Dog("小黑", 1);
+const dog2 = new Dog("小白", 2);
+dog2.bark();   // {name: '小白', age: 2}
 ```
-class C{
+
+总结: 
+
+在**类中**定义属性, 在**构造函数中**接受new时传递进来的参数为属性赋值!
+
+#### 3、继承
+
+##### 定义
+
+继承时面向对象中的又一个特性
+
+通过继承可以将其他类中的属性和方法引入到当前类中
+
+继承的必要性：
+
+```js
+ // 定义一个🐕的类
+  class Dog {
     name: string;
-    age: number
+    age: number;
 
     constructor(name: string, age: number) {
+      this.name = name;
+      this.age = age;
+    }
+
+    bark() {
+      console.log("汪汪汪!");
+    }
+  }
+
+  // 定义一个🐱的类
+  class Cat {
+    name: string;
+    age: number;
+
+    constructor(name: string, age: number) {
+      this.name = name;
+      this.age = age;
+    }
+
+    bark() {
+      console.log("喵喵喵!");
+    }
+  }
+
+  const dog = new Dog("Wangcai", 2);
+  dog.bark();
+
+  const cat = new Cat("Mimi", 2);
+  cat.bark();
+```
+
+在Dog和Cat类中有大量重复的代码，是否可以提取来成为公共的部分呢？可以抽象出一个动物类，让猫狗类继承动物类中的属性在进行自己的扩展
+
+示例：
+
+```js
+class Animal{
+    name: string;
+    age: number;
+
+    constructor(name: string, age: number){
         this.name = name;
         this.age = age;
     }
+    
+    bark() {
+    	console.log("动物在咆哮");
+    }
 }
-```
 
-同时也可以直接将属性定义在构造函数中：
-
-```
-class C {
-    constructor(public name: string, public age: number) {
+// 定义一个🐕的类  继承 Animal类   extends 有扩展的意思
+// 继承后 Animal 称为 父类 Dog为子类
+// 继承后 子类拥有父类所有的属性和方法
+class Dog extends Animal {
+    // 扩展
+    run() {
+    	console.log(`${this.name}已经在跑了~`);
+    }
+    // 重写
+    bark() {
+    	console.log("汪汪汪");
     }
 }
 ```
 
-上面两种定义方法是完全相同的！
+通过继承可以在不修改类的情况下完成对类的扩展
 
-**注2：子类继承父类时，必须调用父类的构造方法（如果子类中也定义了构造方法）！**
+##### super
 
-例如：
+```js
+// super adj. 超级的;   我们的父类也叫超类
 
-```
-class A {
-    protected num: number;
-    constructor(num: number) {
-        this.num = num;
++(function () {
+  class Animal {
+    name: string;
+
+    constructor(name: string) {
+      this.name = name;
     }
+
+    sayHello() {
+      console.log("动物在叫~");
+    }
+  }
+
+  class Dog extends Animal {
+    // 新增属性
+    age: number;
+
+    constructor(name: string, age: number) {
+      // 为新增属性赋值前必须调用 super 并传参以初始化父类属性
+      // 因为子类实现自己的constructor时  相当于重写了父类的 constructor 父类中的赋值操作被覆盖了
+      super(name);
+      this.age = age;
+    }
+
+    sayHello(): void {
+      // 子类的方法中调用父类的方法
+      // super 就是父类
+      super.sayHello();
+    }
+  }
+
+  const dog = new Dog("feifei", 2);
+  dog.sayHello();
+})();
+```
+
+##### 抽象类
+
+> 以abstact开头的类是抽象类
+>
+> 抽象类是专门用来被其他类所继承的类，它只能被其他类所继承不能用来创建实例
+>
+> 和其他类的区别不大, 只是不能用来创建对象
+>
+> 抽象类中可以定义抽象方法(继承后必须进行重写的方法)
+
+```js
++(function () {
+  // 定义一个抽象类
+  abstract class Animal {
+    name: string;
+
+    constructor(name: string) {
+      this.name = name;
+    }
+
+    // 定义一个抽象方法
+    // 定义在抽象类中  没有方法体 子类必须对其重写
+    abstract sayHello(): void;
+  }
+
+  // 继承抽象类
+  class Dog extends Animal {
+    // 抽象方法的重写
+    sayHello(): void {
+      console.log("汪汪汪!");
+    }
+  }
+
+  const dog = new Dog("feifei");
+  dog.sayHello();
+})();
+```
+
+使用abstract开头的方法叫做抽象方法，抽象方法没有方法体只能定义在抽象类中，继承抽象类时抽象方法必须要实现;
+
+#### 4、接口
+
+```js
+// 描述一个对象的类型
+type myType = {
+  name: string;
+  age: number;
+};
+
+// 接口 定义类的结构  定义一个类中包含哪些属性和方法
+// 也可以当成类型声明去使用
+interface myInterface {
+  name: string;
+  age: number;
 }
 
-class X extends A {
-    protected name: string;
-    constructor(num: number, name: string) {
-        super(num);
-        this.name = name;
-    }
-}
+const obj: myInterface = {
+  name: "xiaoming",
+  age: 2,
+};
+
 ```
 
-如果在X类中不调用`super`将会报错！
+type 和 interface 的区别
 
-#### 封装
+```js
+interface myInterface {
+  name: string;
+  age: number;
+}
+
+// 接口可以声明多个  同名接口会进行合并  type 不行只能声明一次
+interface myInterface {
+  gender: string;
+}
+
+const obj: myInterface = {
+  name: "xiaoming",
+  age: 2,
+  gender: "male",
+};
+```
+
+接口可以在声明的时候限制类的结构
+
+```js
+/**
+   * 接口可以在声明的时候限制类的结构
+   * 接口中只类型, 不考虑实际值
+   * 接口中的方法都是抽象方法
+   */
+  interface PersonNeed {
+    name: string;
+    hi(): void;
+  }
+
+  /**
+   * 定义类的时候, 可以让类去实现一个接口
+   * 使用 implements 关键字
+   */
+  class Person implements PersonNeed {
+    name: string;
+    constructor(name: string) {
+      this.name = name;
+    }
+
+    hi(): void {
+      console.log("hi");
+    }
+  }
+```
+
+说白了，接口就是一个**规范**！
+
+接口和抽象类的主要区别：
+
+- 抽象类中可以是抽象方法，也可以是普通方法， 但是接口只能是抽象方法
+- 抽象类是通过extends限制子类， 接口是类通过 implements 实现规范
+
+#### 5、属性的封装
+
+```js
+(function () {
+  class Person {
+    name: string;
+    age: number;
+
+    constructor(name: string, age: number) {
+      this.name = name;
+      this.age = age;
+    }
+  }
+
+  const per = new Person("xiaoming", 18);
+  // 不加限制的属性 是十分不安全的 可以随意修改
+  per.name = "ccc";
+  per.age = 122;
+  console.log(per); // {name: 'ccc', age: 122}
+})();
+
+```
+
+
 
 对象实质上就是属性和方法的容器，它的主要作用就是存储属性和方法，这就是所谓的封装
 
@@ -1034,13 +1341,15 @@ class X extends A {
 - TS中属性具有三种修饰符：
   - public（默认值），可以在类、子类和对象中修改
   - protected ，可以在类、子类中修改
-  - private ，可以在类中修改
+  - private ，只能在类中修改
 
 示例：
 
-public：
+#####public
 
-```
+> public（默认值），可以在类、**子类和对象中修改**
+
+```js
 class Person{
     public name: string; // 写或什么都不写都是public
     public age: number;
@@ -1066,20 +1375,16 @@ const p = new Person('孙悟空', 18);
 p.name = '猪八戒';// 可以通过对象修改
 ```
 
-protected：
+#####protected
 
-```
+> 可以在类、子类中修改
+
+```js
 class Person{
     protected name: string;
-    protected age: number;
 
     constructor(name: string, age: number){
         this.name = name; // 可以修改
-        this.age = age;
-    }
-
-    sayHello(){
-        console.log(`大家好，我是${this.name}`);
     }
 }
 
@@ -1087,44 +1392,61 @@ class Employee extends Person{
 
     constructor(name: string, age: number){
         super(name, age);
-        this.name = name; //子类中可以修改
+        this._name = name; //子类中可以修改
+    }
+    
+     hi() {
+      // 可以在子类中访问
+      console.log(this._name);
     }
 }
 
-const p = new Person('孙悟空', 18);
-p.name = '猪八戒';// 不能修改
+const p = new Employee('孙悟空', 18);
+p._name = '猪八戒';// 不能修改
 ```
 
-private：
+#####private
 
-```
+> 只能在类中修改
+
+```js
 class Person{
-    private name: string;
-    private age: number;
+    private _name: string;
 
     constructor(name: string, age: number){
-        this.name = name; // 可以修改
+        this._name = name; // 可以修改
         this.age = age;
-    }
-
-    sayHello(){
-        console.log(`大家好，我是${this.name}`);
     }
 }
 
 class Employee extends Person{
-
     constructor(name: string, age: number){
         super(name, age);
-        this.name = name; //子类中不能修改
+        this._name = name; //子类中不能修改
     }
 }
 
 const p = new Person('孙悟空', 18);
-p.name = '猪八戒';// 不能修改
+p._name = '猪八戒';// 不能修改
 ```
 
-#### 属性存取器
+类声明的等价语法糖: 
+
+```js
+  // 类声明属性的简写
+  class Shorthand {
+    constructor(public name: string, public age: number) {}
+  }
+
+  const short = new Shorthand("xiaoming", 19);
+  console.log(short); //{name: 'xiaoming', age: 19}
+```
+
+
+
+
+
+#### 6、属性存取器
 
 对于一些不希望被任意修改的属性，可以将其设置为private
 
@@ -1134,147 +1456,177 @@ p.name = '猪八戒';// 不能修改
 
 读取属性的方法叫做setter方法，设置属性的方法叫做getter方法
 
-示例：
+js的实现: 
 
-```
-class Person{
-    private _name: string;
+```js
+ class Person {
+    public name: string;
+    private age: number;
 
-    constructor(name: string){
-        this._name = name;
+    constructor(name: string, age: number) {
+      this.name = name;
+      this.age = age;
     }
 
-    get name(){
-        return this._name;
+    // 设置私有属性后  向外界暴露获取私有属性和修改私有属性的方法
+    // 我们称之为 属性的存取器  这能间接修改  主动权在我们这里
+    getAge() {
+      return this.age;
     }
 
-    set name(name: string){
-        this._name = name;
+    setAge(value: number) {
+      if (value >= 0) {
+        this.age = value;
+      } else {
+        throw new Error("年龄不能为负数");
+      }
     }
+  }
 
-}
-
-const p1 = new Person('孙悟空');
-// 实际通过调用getter方法读取name属性
-console.log(p1.name);
-// 实际通过调用setter方法修改name属性 
-p1.name = '猪八戒'; 
-```
-
-#### 静态属性
-
-静态属性（方法），也称为类属性。使用静态属性无需创建实例，通过类即可直接使用
-
-静态属性（方法）使用static开头
-
-示例：
+  const per = new Person("xiaoming", 18);
+  per.setAge(-1);
 
 ```
-class Tools{
-    static PI = 3.1415926;
-    
-    static sum(num1: number, num2: number){
-        return num1 + num2
-    }
-}
 
-console.log(Tools.PI);
-console.log(Tools.sum(123, 456));
-```
+TS 属性存取器语法糖设置存取方法:
 
-#### this
+```js
+class Person {
+    public name: string;
+    private _age: number;
 
-在类中，使用this表示当前对象
-
-#### 继承
-
-继承时面向对象中的又一个特性
-
-通过继承可以将其他类中的属性和方法引入到当前类中
-
-示例：
-
-```
-class Animal{
-    name: string;
-    age: number;
-
-    constructor(name: string, age: number){
+    constructor(name: string, age: number) {
         this.name = name;
-        this.age = age;
+        this._age = age;
+    }
+
+    get age() {
+        console.log("调用了 getter");
+        return this._age;
+    }
+
+    set age(value: number) {
+        console.log("调用了 setter");
+        if (value >= 0) {
+        	this._age = value;
+        } else {
+        	throw new Error("年龄不能为负数");
+        }
     }
 }
 
-class Dog extends Animal{
+const per = new Person("xiaoming", 2);
+// 可以直接通过 .属性名访问 但是事实上调用了 age()
+console.log(per.age);
+// 修改类似
+per.age = 999;
+console.log(per); //  {name: 'xiaoming', _age: 999}
+```
 
-    bark(){
-        console.log(`${this.name}在汪汪叫！`);
-    }
+
+
+### 泛型
+
+定义一个函数或类时，有些情况下无法确定其中要使用的具体类型（返回值、参数、属性的类型不能确定）；
+
+此时泛型便能够发挥作用；
+
+举个例子：
+
+```js
+function test(arg: any): any{
+    return arg;
+}
+```
+
+上例中，test函数有一个参数类型不确定，但是能确定的时其返回值的类型和参数的类型是相同的；
+
+由于类型不确定所以参数和返回值均使用了any，但是很明显这样做是不合适的：
+
+首先使用any会关闭TS的类型检查，其次这样设置也不能体现出参数和返回值是相同的类型；
+
+#### 泛型函数
+
+##### 创建泛型函数
+
+```js
+function test<T>(arg: T): T{
+    return arg;
+}
+```
+
+这里的`<T>`就是泛型；
+
+T是我们给这个类型起的名字（不一定非叫T），设置泛型后即可在函数中使用T来表示该类型；
+
+所以泛型其实很好理解，就表示某个类型；
+
+那么如何使用上边的函数呢？
+
+##### 使用泛型函数
+
+##### 方式一（直接使用）：
+
+```js
+test(10)
+```
+
+使用时可以直接传递参数使用，类型会由TS自动推断出来，但有时编译器无法自动推断时还需要使用下面的方式
+
+##### 方式二（指定类型）：
+
+```js
+test<number>(10)
+```
+
+也可以在函数后手动指定泛型；
+
+##### 函数中声明多个泛型
+
+可以同时指定多个泛型，泛型间使用逗号隔开：
+
+```js
+function test<T, K>(a: T, b: K): K{
+  return b;
 }
 
-const dog = new Dog('旺财', 4);
-dog.bark();
+test<number, string>(10, "hello");
 ```
 
-通过继承可以在不修改类的情况下完成对类的扩展
+使用泛型时，完全可以将泛型当成是一个普通的类去使用；
 
-#### 重写
+#### 泛型继承
 
-发生继承时，如果子类中的方法会替换掉父类中的同名方法，这就称为方法的重写
+除此之外，也可以对泛型的范围进行约束
 
-示例：
-
-```
-class Animal{
-    name: string;
-    age: number;
-
-    constructor(name: string, age: number){
-        this.name = name;
-        this.age = age;
-    }
-
-    run(){
-        console.log(`父类中的run方法！`);
-    }
+```js
+interface inter {
+  length: number;
+}
+// 约束泛型  inter是T必须实现的类或者说子类
+function fn3<T extends inter>(a: T): number {
+  return a.length;
 }
 
-class Dog extends Animal{
-
-    bark(){
-        console.log(`${this.name}在汪汪叫！`);
-    }
-
-    run(){
-        console.log(`子类中的run方法，会重写父类中的run方法！`);
-    }
-}
-
-const dog = new Dog('旺财', 4);
-dog.bark();
+fn3({ length: 2 });
+fn3("12312");
+fn3(123); //error
 ```
 
-**在子类中可以使用super来完成对父类的引用**
+使用T extends MyInter表示泛型T必须是MyInter的子类，不一定非要使用接口类和抽象类同样适用；
 
-#### 抽象类（abstract class）
+#### 泛型类
 
-抽象类是专门用来被其他类所继承的类，它只能被其他类所继承不能用来创建实例
+类中同样可以使用泛型：
 
-```
-abstract class Animal{
-  abstract run(): void;
-  bark(){
-      console.log('动物在叫~');
+```js
+// 在类中使用泛型
+class Student<T> {
+  name: T;
+  constructor(name: T) {
+    this.name = name;
   }
 }
 
-class Dog extends Animals{
-  run(){
-      console.log('狗在跑~');
-  }
-}
+const s = new Student<string>("小红");
 ```
-
-
-
-使用abstract开头的方法叫做抽象方法，抽象方法没有方法体只能定义在抽象类中，继承抽象类时抽象方法必须要实现;
