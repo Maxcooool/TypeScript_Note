@@ -71,6 +71,23 @@ module.exports = {
           // 注意顺序是从下往上进行处理  less-loader -> css-loader -> style-loader
           "style-loader",
           "css-loader",
+          // 引入 postcss
+          {
+            loader: "postcss-loader",
+            options: {
+              postcssOptions: {
+                plugins: [
+                  [
+                    "postcss-preset-env",
+                    {
+                      // 兼容所有浏览器最新的两个版本
+                      browsers: "last 2 versions",
+                    },
+                  ],
+                ],
+              },
+            },
+          },
           "less-loader",
         ],
       },

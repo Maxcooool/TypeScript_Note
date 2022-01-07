@@ -1,3 +1,73 @@
+@bg_color: #b7d4a8;
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
 body {
-  background-color: #bfc;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font: 600 20px "Courier";
+}
+
+#main {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  align-items: center;
+  width: 360px;
+  height: 420px;
+  border: 10px solid #000;
+  border-radius: 40px;
+  background-color: @bg_color;
+
+  #stage {
+    width: 304px;
+    height: 304px;
+    border: 2px solid #000;
+  }
+
+  #pannel {
+    display: flex;
+    justify-content: space-between;
+    width: 304px;
+  }
+}
+
+#stage {
+  position: relative;
+  #snake {
+    position: absolute;
+    // 蛇的每一节身子
+    & > div {
+      width: 10px;
+      height: 10px;
+      background-color: #000;
+      border: 1px solid @bg_color;
+    }
+  }
+
+  #food {
+    position: absolute;
+    margin-left: 100px;
+    width: 10px;
+    height: 10px;
+    border: 1px solid @bg_color;
+
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-content: center;
+
+    & > div {
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background-color: #000;
+    }
+  }
 }

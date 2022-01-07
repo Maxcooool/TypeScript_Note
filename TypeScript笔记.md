@@ -1666,3 +1666,47 @@ module：{
 
 加入后，写一些代码测试 新建src——style——index.less   书写样式后，在src-index.ts中引入, 并执行 npm run serve查看效果
 
+
+
+babel帮我们处理了js的问题, 但是还没有处理css兼容性的问题, 我们需要一个类似babel的工具帮我们解决——postcss
+
+安装postcss相关依赖
+
+```cmd
+npm i -D postcss postcss-loader postcss-preset-env
+```
+
+配置postcss
+
+```json
+ // 设置less的处理
+      {
+        test: /\.less/,
+        use: [
+          // 注意顺序是从下往上进行处理  less-loader -> css-loader -> style-loader
+          "style-loader",
+          "css-loader",
+          // 引入 postcss
+          {
+            loader: "postcss-loader",
+            options: {
+              postcssOptions: {
+                plugins: [
+                  [
+                    "postcss-preset-env",
+                    {
+                      // 兼容所有浏览器最新的两个版本
+                      browsers: "last 2 versions",
+                    },
+                  ],
+                ],
+              },
+            },
+          },
+          "less-loader",
+        ],
+      },
+```
+
+
+
