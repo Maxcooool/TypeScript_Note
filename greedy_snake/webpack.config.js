@@ -18,9 +18,11 @@ module.exports = {
     filename: "bundle.js",
     // 打包前先清空
     clean: true,
-    // 不使用箭头函数
     environment: {
+      // 不使用箭头函数
       arrowFunction: false,
+      // 不使用const
+      const: false,
     },
   },
 

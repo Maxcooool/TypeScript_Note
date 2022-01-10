@@ -1708,5 +1708,145 @@ npm i -D postcss postcss-loader postcss-preset-env
       },
 ```
 
+### 页面结构
 
+src/index.html
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GreedySnack</title>
+  </head>
+  <body>
+    <div id="main">
+      <!-- 游戏窗口 -->
+      <div id="stage">
+        <div id="snake">
+          <div></div>
+        </div>
+
+        <div id="food">
+          <div></div>
+          <div></div>
+          <div></div>
+          <div></div>
+        </div>
+      </div>
+      <!-- 计分板 -->
+      <div id="pannel">
+        <div>
+          <span>SCORE:</span>
+          <span id="score">3</span>
+        </div>
+        <div>
+          <span>LEVEL:</span>
+          <span id="level">1</span>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
+
+```
+
+src/style/index.less
+
+```less
+@bg_color: #b7d4a8;
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font: 600 20px "Courier";
+}
+
+#main {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  align-items: center;
+  width: 360px;
+  height: 420px;
+  border: 10px solid #000;
+  border-radius: 40px;
+  background-color: @bg_color;
+
+  #stage {
+    width: 304px;
+    height: 304px;
+    border: 2px solid #000;
+  }
+
+  #pannel {
+    display: flex;
+    justify-content: space-between;
+    width: 304px;
+  }
+}
+
+#stage {
+  position: relative;
+  #snake {
+    position: absolute;
+    // 蛇的每一节身子
+    & > div {
+      width: 10px;
+      height: 10px;
+      background-color: #000;
+      border: 1px solid @bg_color;
+    }
+  }
+
+  #food {
+    position: absolute;
+    margin-left: 100px;
+    width: 10px;
+    height: 10px;
+    border: 1px solid @bg_color;
+
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-content: center;
+
+    & > div {
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background-color: #000;
+    }
+  }
+}
+```
+
+我们虽然配置了babel和postcss, 兼容所有浏览器的最新两个版本, 但是会发现依旧不能在ie11 中运行, 原因类似箭头函数问题, webpack在打包时使用了 const , 配置以禁用const
+
+```json
+  // 打包后的文件配置
+  output: {
+    path: path.resolve(__dirname, "dist"),
+    // 打包后的文件名
+    filename: "bundle.js",
+    // 打包前先清空
+    clean: true,
+    environment: {
+      // 不使用箭头函数
+      arrowFunction: false,
+      // 不使用const
+      const: false,
+    },
+  },
+```
 
