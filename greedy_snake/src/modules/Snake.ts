@@ -10,6 +10,7 @@ class Snake {
   constructor() {
     this.element = document.getElementById("snake")!;
     this.head = document.querySelector("#snake > div")!;
+    console.log(this.head, "head >>>?");
     // 这里不用 querySelectorAll 的原因就是 querySelectorAll 获取的是node
     this.bodies = this.element.getElementsByTagName("div")!;
   }
@@ -24,10 +25,10 @@ class Snake {
 
   // 设置坐标;
   set X(value: number) {
-    this.head.style.left = value + "";
+    this.head.style.left = value + "px";
   }
   set Y(value: number) {
-    this.head.style.top = value + "";
+    this.head.style.top = value + "px";
   }
 
   // 增加身体长度

@@ -14,7 +14,7 @@ c = true;
 // c = 3;
 
 // js 中的函数不考虑参数类型和个数
-function sum(x, y) {
+function sum(x: any, y: any) {
   return x + y;
 }
 console.log(sum(111, 222)); // 333
